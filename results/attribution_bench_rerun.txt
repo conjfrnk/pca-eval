@@ -1,0 +1,189 @@
+AttributionBench Benchmark Rerun Results
+=========================================
+Date: 2026-03-04
+Dataset: osunlp/AttributionBench (Li et al., ACL 2024 Findings)
+Config: full_data
+
+Dataset Statistics:
+  ID test (test.jsonl):      1,610 examples (805 ATTRIBUTABLE / 805 NOT_ATTRIBUTABLE)
+  OOD test (test_ood.jsonl): 1,611 examples (833 ATTRIBUTABLE / 778 NOT_ATTRIBUTABLE)
+  Training (train.jsonl):    8,300 examples
+  Dev (dev.jsonl):           1,198 examples
+
+  ID sources:  ExpertQA (612), Stanford-GenSearch (600), AttributedQA (230), LFQA (168)
+  OOD sources: BEGIN, HAGRID, AttrEval-GenSearch (1,611 total)
+
+Published baselines (OOD macro-F1, Li et al. 2024 Table 3):
+  Fine-tuned GPT-3.5:          81.9%
+  GPT-4 zero-shot w/ CoT:      78.9%
+  GPT-4 zero-shot w/o CoT:     78.0%
+
+=========================================
+RESULTS: IN-DISTRIBUTION (ID) TEST SET
+=========================================
+
+1. DeBERTa-v3-base (184M), whole strategy, t=0.5
+   Accuracy:           64.7%
+   Report F1:          67.6%
+   sklearn macro-F1:   60.4%
+   sklearn binary-F1:  49.1%
+   Per-label:          ATTRIBUTABLE 37.8% / NOT_ATTRIBUTABLE 91.7%
+   Avg latency:        266ms
+   Total time:         428.3s
+
+2. DeBERTa-v3-base (184M), whole strategy, t=0.3
+   Accuracy:           64.9%
+   Report F1:          67.7%
+   sklearn macro-F1:   60.8%
+   sklearn binary-F1:  49.9%
+   Per-label:          ATTRIBUTABLE 38.5% / NOT_ATTRIBUTABLE 91.3%
+   Total time:         0.1s (cached)
+
+3. DeBERTa-v3-large (435M), whole strategy, t=0.5
+   Accuracy:           64.8%
+   Report F1:          66.6%
+   sklearn macro-F1:   62.2%
+   sklearn binary-F1:  53.3%
+   Per-label:          ATTRIBUTABLE 42.9% / NOT_ATTRIBUTABLE 86.8%
+   Avg latency:        1046ms
+   Total time:         1684.7s
+
+4. DeBERTa-v3-base + MiniCheck fallback, t=0.5
+   Accuracy:           66.5%
+   Report F1:          68.3%
+   Per-label:          ATTRIBUTABLE 45.3% / NOT_ATTRIBUTABLE 87.7%
+   Avg latency:        1177ms
+   Total time:         1520.1s
+
+5. DeBERTa-v3-base, decompose-evidence (chars), t=0.5
+   Accuracy:           63.2%
+   Report F1:          65.2%
+   Per-label:          ATTRIBUTABLE 38.4% / NOT_ATTRIBUTABLE 88.0%
+   Avg latency:        1268ms
+   Total time:         1599.9s
+
+6. DeBERTa-v3-base, multi-signal strategy, t=0.5
+   Accuracy:           65.0%
+   Report F1:          67.9%
+   Per-label:          ATTRIBUTABLE 37.9% / NOT_ATTRIBUTABLE 92.0%
+
+7. DeBERTa-v3-base, weakest-link strategy, t=0.5
+   Accuracy:           64.8%
+   Report F1:          67.8%
+   Per-label:          ATTRIBUTABLE 37.8% / NOT_ATTRIBUTABLE 91.9%
+
+ID Threshold Sweep (base, whole):
+   t=0.30  F1=66.9%  Acc=63.9%
+   t=0.35  F1=66.9%  Acc=63.9%
+   t=0.40  F1=66.8%  Acc=63.7%
+   t=0.45  F1=66.9%  Acc=63.8%
+   t=0.50  F1=66.8%  Acc=63.7%
+   t=0.55  F1=67.0%  Acc=63.7%
+   t=0.60  F1=67.0%  Acc=63.7%
+   t=0.65  F1=67.1%  Acc=63.8%
+   t=0.70  F1=67.1%  Acc=63.8%
+   t=0.75  F1=67.4%  Acc=63.9%  <-- best
+   t=0.80  F1=67.3%  Acc=63.9%
+
+=========================================
+RESULTS: OUT-OF-DISTRIBUTION (OOD) TEST SET
+=========================================
+
+8. DeBERTa-v3-base (184M), whole strategy, t=0.5
+   Accuracy:           69.9%
+   Report F1:          71.6%
+   sklearn macro-F1:   68.9%
+   sklearn binary-F1:  63.6%
+   Per-label:          ATTRIBUTABLE 53.5% / NOT_ATTRIBUTABLE 87.4%
+   Avg latency:        530ms
+   Total time:         853.4s
+
+9. DeBERTa-v3-large (435M), whole strategy, t=0.5
+   Accuracy:           71.3%
+   Report F1:          72.4%
+   sklearn macro-F1:   71.6%
+   sklearn binary-F1:  67.8%
+   Per-label:          ATTRIBUTABLE 58.8% / NOT_ATTRIBUTABLE 84.7%
+   Avg latency:        1268ms
+   Total time:         2041.9s
+
+OOD Threshold Sweep (large, whole):
+   t=0.20  sklearn_macro=71.8%  Acc=72.3%
+   t=0.25  sklearn_macro=71.8%  Acc=72.3%
+   t=0.30  sklearn_macro=71.9%  Acc=72.4%  <-- best
+   t=0.35  sklearn_macro=71.6%  Acc=72.1%
+   t=0.40  sklearn_macro=71.6%  Acc=72.1%
+   t=0.45  sklearn_macro=71.6%  Acc=72.2%
+   t=0.50  sklearn_macro=71.6%  Acc=72.1%
+   t=0.55  sklearn_macro=71.6%  Acc=72.2%
+   t=0.60  sklearn_macro=71.6%  Acc=72.2%
+   t=0.64  sklearn_macro=71.6%  Acc=72.1%
+   t=0.70  sklearn_macro=71.6%  Acc=72.2%
+   t=0.75  sklearn_macro=71.5%  Acc=71.9%
+   t=0.80  sklearn_macro=71.5%  Acc=71.9%
+
+OOD Threshold Sweep (base, whole):
+   t=0.30  sklearn_macro=69.4%  Acc=70.3%  <-- best
+   t=0.50  sklearn_macro=68.9%  Acc=69.8%
+   t=0.64  sklearn_macro=68.6%  Acc=69.6%
+   t=0.70  sklearn_macro=68.7%  Acc=69.8%
+
+=========================================
+SUMMARY TABLE
+=========================================
+
+Config                          | Split | Threshold | sklearn macro-F1 | Accuracy
+--------------------------------|-------|-----------|------------------|---------
+base whole                      | ID    | 0.30      | 60.8%            | 63.9%
+base whole                      | ID    | 0.50      | 60.4%            | 63.7%
+large whole                     | ID    | 0.30      | 62.4%            | 64.3%
+large whole                     | ID    | 0.50      | 62.2%            | 64.3%
+base + MiniCheck fallback       | ID    | 0.50      | ~62%             | 66.5%
+base whole                      | OOD   | 0.30      | 69.4%            | 70.3%
+base whole                      | OOD   | 0.50      | 68.9%            | 69.8%
+large whole                     | OOD   | 0.30      | 71.9%            | 72.4%
+large whole                     | OOD   | 0.50      | 71.6%            | 72.1%
+
+=========================================
+KEY FINDINGS
+=========================================
+
+1. BEST OOD RESULT (pre-trained): DeBERTa-v3-large at t=0.30 achieves 71.9% sklearn macro-F1
+   - This is 6.1pp below GPT-4 w/o CoT (78.0%) and 10.0pp below fine-tuned GPT-3.5 (81.9%)
+   - The gap is significant and expected: pre-trained NLI models have not been fine-tuned on
+     attribution data
+
+2. ID vs OOD gap: ~9-10pp macro-F1 advantage on OOD vs ID
+   - OOD includes HAGRID examples which our models are better calibrated for
+   - ID datasets (ExpertQA, Stanford-GenSearch) have longer, more complex claims
+
+3. ATTRIBUTABLE recall is the bottleneck:
+   - ID: 37-43% ATTRIBUTABLE accuracy (model is very conservative)
+   - OOD: 53-59% ATTRIBUTABLE accuracy (better but still conservative)
+   - NOT_ATTRIBUTABLE: 85-92% accuracy (model excels at detecting unsupported claims)
+
+4. Model size helps on OOD (+2.7pp macro-F1) but barely on ID (+1.8pp):
+   - Large model trades precision for recall (more balanced per-class accuracy)
+
+5. MiniCheck fallback helps on ID (+1.8pp accuracy) by boosting ATTRIBUTABLE recall
+
+6. Decompose-evidence HURTS performance (-2.5pp report F1) - evidence chunking fragments
+   context needed for whole-claim attribution
+
+7. Strategy variants (multi-signal, weakest-link, majority) show minimal difference
+   from whole strategy on this benchmark - claims are mostly single sentences
+
+8. Threshold sensitivity is LOW: all thresholds in [0.3, 0.8] produce similar results
+
+NOTE: Previous best result of 81.5% macro-F1 used domain-specific XGBoost trained on
+AttributionBench training data with fine-tuned DeBERTa-large-512 features. Those
+fine-tuned models are not present in this environment, so XGBoost strategy could not
+be evaluated. The results above reflect pre-trained model performance only.
+
+=========================================
+ENVIRONMENT
+=========================================
+Python: 3.12
+Models: cross-encoder/nli-deberta-v3-base (184M), cross-encoder/nli-deberta-v3-large (435M)
+Hardware: Consumer hardware (CPU inference, no GPU acceleration for cross-encoder)
+Cache: SQLite-backed response cache (enabled)

@@ -1,0 +1,130 @@
+HAGRID Benchmark Rerun Results
+==============================
+Date: 2026-03-04
+Dataset: HAGRID dev split (1318 examples: 826 ATTRIBUTABLE, 492 NOT_ATTRIBUTABLE)
+Hardware: Consumer hardware
+
+NOTE: No fine-tuned models available locally. All runs use pre-trained models.
+Historical best: 87.5% binary / 80.4% macro CV F1 with
+fine-tuned 3-model DeBERTa ensemble + XGBoost aggregation.
+
+================================================================================
+TIER 0: DRY-RUN (Data Validation)
+================================================================================
+  Total examples: 1318
+  Labels: ATTRIBUTABLE=826, NOT_ATTRIBUTABLE=492
+  Examples with evidence: 1318/1318 (100%)
+  Avg evidence sentences: 2.8
+  Status: PASSED
+
+================================================================================
+TIER 1: NLI-ONLY (Pre-trained Models)
+================================================================================
+
+--- DeBERTa-v3-base (default, 184M params) ---
+
+| Configuration                     | Accuracy | F1    | Precision | Recall | Latency |
+|-----------------------------------|----------|-------|-----------|--------|---------|
+| Base, majority, t=0.5            | 54.8%    | 55.4% | 55.2%     | 55.5%  | 294ms   |
+| Base, xgboost, t=0.5             | 56.0%    | 57.4% | 57.1%     | 57.6%  | 3ms*    |
+| Base, multi-signal, t=0.5        | 56.0%    | 57.4% | 57.1%     | 57.6%  | 2ms*    |
+| Base, passage-scoring, t=0.5     | 54.8%    | 55.4% | 55.2%     | 55.5%  | 1ms*    |
+| Base, weakest-link, t=0.5        | 53.1%    | 57.7% | 57.9%     | 57.6%  | 1ms*    |
+| Base, whole, t=0.5               | 50.9%    | 57.3% | 57.8%     | 56.8%  | 495ms   |
+| Base, decompose-evidence, t=0.5  | 53.8%    | 52.5% | 52.4%     | 52.5%  | 2504ms  |
+| Base + MiniCheck fallback, t=0.5 | 57.7%    | 56.1% | 56.0%     | 56.2%  | 649ms   |
+| Base + MiniCheck + XGBoost, t=0.5| 60.0%    | 58.6% | 58.4%     | 58.9%  | 2ms*    |
+
+*Cached NLI scores from prior runs
+
+Per-label breakdown (selected configs):
+  Base majority:           ATTR=52.5%, NOT_ATTR=58.5%
+  Base xgboost:            ATTR=51.3%, NOT_ATTR=63.8%
+  Base weakest-link:       ATTR=40.0%, NOT_ATTR=75.2%
+  Base whole:              ATTR=33.7%, NOT_ATTR=79.9%
+  Base + MiniCheck:        ATTR=62.2%, NOT_ATTR=50.2%
+  Base + MiniCheck + XGB:  ATTR=63.4%, NOT_ATTR=54.3%
+
+--- DeBERTa-v3-large (435M params) ---
+
+| Configuration                     | Accuracy | F1    | Precision | Recall | Latency |
+|-----------------------------------|----------|-------|-----------|--------|---------|
+| Large, majority, t=0.5           | 51.5%    | 53.3% | 53.3%     | 53.4%  | 2705ms  |
+| Large, xgboost, t=0.5            | 51.7%    | 54.3% | 54.2%     | 54.3%  | 2ms*    |
+| Large, passage-scoring, t=0.5    | 51.5%    | 53.3% | 53.3%     | 53.4%  | 1ms*    |
+| Large, xgboost + passage, t=0.5  | 51.7%    | 54.3% | 54.2%     | 54.3%  | 2ms*    |
+| Large + MiniCheck + XGB, t=0.5   | 58.3%    | 57.2% | 57.0%     | 57.4%  | 186ms   |
+
+Per-label breakdown (selected configs):
+  Large majority:          ATTR=45.9%, NOT_ATTR=61.0%
+  Large xgboost:           ATTR=43.8%, NOT_ATTR=64.8%
+  Large + MiniCheck + XGB: ATTR=61.3%, NOT_ATTR=53.5%
+
+================================================================================
+THRESHOLD SWEEPS
+================================================================================
+
+--- Base model threshold sweep ---
+  Threshold  Accuracy    F1    Precision  Recall
+  0.30       55.5%     55.6%    55.4%     55.8%
+  0.35       55.1%     55.3%    55.1%     55.5%
+  0.40       54.9%     55.3%    55.1%     55.5%
+  0.45       54.9%     55.4%    55.2%     55.6%
+  0.50       54.8%     55.4%    55.2%     55.5%
+  0.55       54.5%     55.2%    55.0%     55.3%
+  0.60       54.9%     55.7%    55.5%     55.9%
+  0.65       54.9%     55.9%    55.7%     56.1%
+  0.70       54.9%     56.0%    55.8%     56.2%
+  0.75       54.6%     55.9%    55.7%     56.1%
+  0.80       54.4%     55.8%    55.6%     55.9%
+  Best: F1=56.0% at t=0.70
+
+--- Large model threshold sweep ---
+  Threshold  Accuracy    F1    Precision  Recall
+  0.30       51.8%     53.0%    52.9%     53.1%
+  0.35       51.7%     53.1%    53.0%     53.2%
+  0.40       51.7%     53.3%    53.2%     53.4%
+  0.45       51.7%     53.5%    53.4%     53.6%
+  0.50       51.5%     53.3%    53.3%     53.4%
+  0.55       51.7%     53.7%    53.6%     53.8%
+  0.60       51.3%     53.3%    53.3%     53.4%
+  0.65       51.2%     53.4%    53.3%     53.5%
+  0.70       51.1%     53.3%    53.3%     53.4%
+  0.75       50.8%     53.2%    53.1%     53.2%
+  0.80       50.7%     53.3%    53.3%     53.4%
+  Best: F1=53.7% at t=0.55
+
+================================================================================
+SUMMARY & ANALYSIS
+================================================================================
+
+Best configuration (pre-trained only): Base + MiniCheck fallback + XGBoost
+  Accuracy: 60.0%, F1: 58.6%, Precision: 58.4%, Recall: 58.9%
+
+Key observations:
+1. Pre-trained base (184M) outperforms pre-trained large (435M) on HAGRID
+   - Base majority: 55.4% F1 vs Large majority: 53.3% F1
+   - This is consistent with prior observations: "Model size helps generalization,
+     not aggregation" -- large models don't help with the all-or-nothing HAGRID
+     aggregation without fine-tuning
+
+2. XGBoost aggregation consistently improves over majority voting
+   - Base: 55.4% -> 57.4% (+2.0pp)
+   - Large: 53.3% -> 54.3% (+1.0pp)
+
+3. MiniCheck fallback helps HAGRID significantly
+   - Base + MiniCheck: 56.1% F1, +0.7pp over base alone
+   - Base + MiniCheck + XGBoost: 58.6% F1, best pre-trained result (+3.2pp)
+
+4. Decompose-evidence hurts (-2.9pp) -- evidence passages are already short in HAGRID
+
+5. Passage-scoring has no effect on HAGRID (consistent with prior results)
+
+6. Without fine-tuned models, results are significantly below the historical
+   best of 87.5% binary / 80.4% macro F1. The fine-tuned 3-model DeBERTa
+   ensemble is essential for that result. See the paper for training details.
+
+================================================================================
+RESULT FILES
+================================================================================
+All JSON result files saved to: results/

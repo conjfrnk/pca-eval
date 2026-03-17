@@ -1,0 +1,108 @@
+FEVER Benchmark Rerun Results
+=============================
+Date: 2026-03-04
+Dataset: FEVER dev set (19,998 total, 19,895 evaluated)
+  - Labels: SUPPORTS (6,666), REFUTES (6,666), NOT_ENOUGH_INFO (6,666)
+  - Claims with evidence text: 13,229/13,332 (103 missing)
+  - NEI claims: 6,666 (auto-correct, no evidence needed)
+
+All runs use oracle evidence (gold evidence sentences from FEVER annotations).
+Evidence text loaded from 5,416,537 Wikipedia pages (1.6GB zip).
+
+================================================================================
+RESULTS SUMMARY
+================================================================================
+
+| # | Model                              | Threshold | Features         | Accuracy | F1    | Precision | Recall | Time     |
+|---|------------------------------------|-----------|-----------------:|----------|-------|-----------|--------|----------|
+| 1 | DeBERTa-v3-base (184M)             | 0.50      | -                | 84.8%    | 86.1% | 87.4%     | 84.8%  | 3734s    |
+| 2 | DeBERTa-v3-base (184M)             | 0.30      | passage-scoring  | 86.0%    | 87.0% | 88.1%     | 86.0%  | 444s     |
+| 3 | DeBERTa-v3-large (435M)            | 0.30      | -                | 84.9%    | 86.2% | 87.6%     | 84.9%  | 1162s    |
+| 4 | DeBERTa-v3-large (435M)            | 0.30      | passage-scoring  | 86.0%    | 87.1% | 88.3%     | 86.0%  | 288s     |
+| 5 | MoritzLaurer DeBERTa-v3-large      | 0.30      | passage-scoring  | 90.5%    | 91.2% | 91.9%     | 90.5%  | 2805s    |
+
+Note: #5 (MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli) was trained on FEVER.
+
+================================================================================
+PER-LABEL ACCURACY
+================================================================================
+
+| # | Model                              | NOT_ENOUGH_INFO | SUPPORTS | REFUTES |
+|---|------------------------------------|-----------------:|---------:|--------:|
+| 1 | DeBERTa-v3-base, t=0.5             | 100.0%          | 65.1%    | 89.3%   |
+| 2 | DeBERTa-v3-base, t=0.3+passage     | 100.0%          | 68.7%    | 89.3%   |
+| 3 | DeBERTa-v3-large, t=0.3            | 100.0%          | 64.6%    | 90.0%   |
+| 4 | DeBERTa-v3-large, t=0.3+passage    | 100.0%          | 67.9%    | 90.1%   |
+| 5 | MoritzLaurer, t=0.3+passage        | 100.0%          | 90.6%    | 80.9%   |
+
+Key observations:
+- NOT_ENOUGH_INFO always 100% (hardcoded correct for claims without evidence)
+- SUPPORTS is the hardest label for cross-encoder models (65-69%)
+- MoritzLaurer dramatically improves SUPPORTS (90.6%) but trades off REFUTES (80.9%)
+- MoritzLaurer was trained on FEVER, so high performance is expected (in-distribution)
+
+================================================================================
+THRESHOLD SWEEP (DeBERTa-v3-base)
+================================================================================
+
+| Threshold | Accuracy | F1    | Precision | Recall |
+|-----------|----------|-------|-----------|--------|
+| 0.30      | 85.2%    | 86.3% | 87.5%     | 85.1%  |
+| 0.35      | 85.1%    | 86.2% | 87.5%     | 85.0%  |
+| 0.40      | 85.0%    | 86.2% | 87.4%     | 84.9%  |
+| 0.45      | 84.9%    | 86.1% | 87.4%     | 84.9%  |
+| 0.50      | 84.8%    | 86.1% | 87.4%     | 84.8%  |
+| 0.55      | 84.7%    | 86.0% | 87.3%     | 84.7%  |
+| 0.60      | 84.6%    | 85.9% | 87.3%     | 84.6%  |
+| 0.65      | 84.5%    | 85.8% | 87.2%     | 84.5%  |
+| 0.70      | 84.5%    | 85.8% | 87.2%     | 84.4%  |
+| 0.75      | 84.3%    | 85.7% | 87.2%     | 84.3%  |
+| 0.80      | 84.2%    | 85.6% | 87.1%     | 84.2%  |
+
+Best: F1=86.3% at threshold=0.3 (monotonic improvement with lower thresholds)
+
+================================================================================
+COMPARISON TO PREVIOUS RESULTS
+================================================================================
+
+Previous best: 94.7% F1 (fine-tuned large-512 + passage-scoring, t=0.3)
+
+These results are NOT directly comparable because:
+1. Previous results used FINE-TUNED models (fine-tuned on a mixture of public NLI datasets, ~33K examples, see paper for details)
+2. The fine-tuned models have significantly better NLI capabilities
+3. No fine-tuned models were available for this rerun
+
+With PRE-TRAINED models only:
+- Best cross-encoder result: 87.1% F1 (large + passage-scoring, t=0.3)
+- Best overall result: 91.2% F1 (MoritzLaurer, trained on FEVER -- in-distribution advantage)
+
+================================================================================
+EVIDENCE F1
+================================================================================
+
+Evidence retrieval scores are low across all runs (~29-31%), which is expected
+since we only match evidence sentence indices, not full evidence text. The
+oracle setup means we always use the gold evidence for NLI, but the evidence
+index matching is a separate metric.
+
+================================================================================
+LATENCY
+================================================================================
+
+| Model                        | Avg Latency | Total Time | Notes                     |
+|------------------------------|-------------|------------|---------------------------|
+| Base, t=0.5                  | 285ms       | 3734s      | Cold cache                |
+| Base, t=0.3+passage          | 95ms        | 444s       | Warm cache from #1        |
+| Large, t=0.3                 | 89ms        | 1162s      | Mix of cached/new         |
+| Large, t=0.3+passage         | 62ms        | 288s       | Warm cache from #3        |
+| MoritzLaurer, t=0.3+passage  | 214ms       | 2805s      | Cold cache, different model|
+
+================================================================================
+NOTES
+================================================================================
+
+- Wikipedia pages downloaded successfully (1.6GB zip -> 109 JSONL files, 5.4M pages)
+- 103 claims had evidence page references but missing text from Wikipedia dump
+- All runs used oracle evidence (gold evidence sentences from annotations)
+- Cache accelerates subsequent runs significantly (hit rates up to 86%)
+- No fine-tuned models were available locally for this rerun
