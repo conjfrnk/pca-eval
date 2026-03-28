@@ -1,0 +1,40 @@
+FACTS Grounding Benchmark - Full Results
+=========================================
+Date: 2026-03-04
+Model: DeBERTa-v3-base (cross-encoder/nli-deberta-v3-base, 184M params)
+Tier: nli-only
+Threshold: 0.5 (entailment)
+
+Dataset: Google DeepMind FACTS Grounding (google/FACTS-grounding-public)
+Raw documents: 860
+Generated NLI examples: 3,287 (2,543 GROUNDED + 744 NOT_GROUNDED)
+
+============================================================
+  RESULTS (default model, all 3,287 examples)
+============================================================
+  Total examples:  3,287
+  Accuracy:        98.1%
+  Precision:       98.8%
+  Recall:          95.8%
+  F1:              97.3%
+
+  Per-label accuracy:
+    GROUNDED:        100.0%
+    NOT_GROUNDED:     91.7%
+
+  Average latency: 1,374 ms/example
+  Total time:      3,944.6s (~65.7 min)
+  Cache stats:     4,016 hits / 20,368 misses
+
+============================================================
+  Fine-tuned large model
+============================================================
+  NOT AVAILABLE in this environment.
+  The fine-tuned DeBERTa-large model directory
+  (fine-tuned model checkpoint, see paper for training details) was not found.
+
+============================================================
+  Notes
+============================================================
+  Evaluation methodology: claim-evidence pairs constructed from
+  FACTS Grounding documents. See the paper for details.

@@ -1,0 +1,110 @@
+{
+  "task_metadata": {
+    "title": "Insurance Claim Verification Task",
+    "description": "Review AI-generated claims and evaluate whether they are supported by provided source evidence.",
+    "duration_minutes": 15,
+    "reward_pounds": 3.0,
+    "estimated_completion_per_participant": "100 objects",
+    "batch_size": 50,
+    "total_tasks": 200
+  },
+  "instructions": {
+    "intro": "In this task, you will review short insurance-related claims and decide whether they are well-supported by their source evidence.\n\nYou will see:\n1. A claim (a statement about insurance, coverage, or risk)\n2. A source text passage that the system used as evidence\n3. A simple 4-choice question\n\nRead carefully and choose the answer that best reflects your judgment.",
+    "detailed": "Instructions:\n\n1. Read the CLAIM at the top of the screen.\n2. Read the EVIDENCE (source text passage) below it.\n3. Judge whether the claim's meaning is adequately supported by the evidence.\n\nRespond with one of these four options:\n\n- YES: The claim is clearly supported by the evidence. There's no reasonable doubt about the connection.\n- PARTIAL: The claim is mostly supported, but there's a minor logical gap, heavy paraphrasing, or context needed from elsewhere.\n- NO: The claim is contradicted by the evidence, unsupported, or requires external knowledge.\n- UNCLEAR: You cannot determine from the evidence provided whether the claim is true or false.\n\nExample 1:\nClaim: \"BRCA1 mutations increase breast cancer risk.\"\nEvidence: \"Individuals carrying BRCA1 pathogenic variants face cumulative breast cancer risk >70% by age 80.\"\nAnswer: YES (The evidence clearly supports the claim, though it's more specific.)\n\nExample 2:\nClaim: \"The policy covers medical expenses up to $500K.\"\nEvidence: \"Annual aggregate limit: $500,000. Excludes experimental treatments.\"\nAnswer: YES (Clear support, though annotators might note the exclusion.)\n\nExample 3:\nClaim: \"This insurer has better coverage than its competitors.\"\nEvidence: (none provided)\nAnswer: UNCLEAR (This requires information not in the evidence.)\n\nTake your time. If you're unsure, choose UNCLEAR rather than guessing.",
+    "attention_check": "At the end, we'll ask a simple check question to ensure you're paying attention. Answer honestly."
+  },
+  "task_schema": {
+    "fields": [
+      {
+        "name": "object_id",
+        "type": "hidden",
+        "description": "Unique proof object ID"
+      },
+      {
+        "name": "claim_text",
+        "type": "text_display",
+        "label": "Claim",
+        "description": "The AI-generated claim to evaluate"
+      },
+      {
+        "name": "evidence_text",
+        "type": "text_display",
+        "label": "Source Evidence",
+        "description": "The passage used as evidence for the claim"
+      },
+      {
+        "name": "verdict",
+        "type": "radio",
+        "label": "Is this claim's meaning adequately supported by the evidence?",
+        "options": [
+          { "value": "YES", "label": "YES — Claim is clearly supported" },
+          { "value": "PARTIAL", "label": "PARTIAL — Mostly supported, minor gap" },
+          { "value": "NO", "label": "NO — Contradicted or unsupported" },
+          { "value": "UNCLEAR", "label": "UNCLEAR — Cannot determine from evidence" }
+        ],
+        "required": true
+      },
+      {
+        "name": "comments",
+        "type": "text_area",
+        "label": "Optional: Any observations about the evidence or claim?",
+        "placeholder": "E.g., heavy paraphrase, missing context, multiple interpretations...",
+        "required": false,
+        "max_length": 500
+      },
+      {
+        "name": "attention_check",
+        "type": "radio",
+        "label": "[Attention Check] What was the claim about in this task?",
+        "options": [
+          { "value": "CORRECT", "label": "Insurance coverage and claim verification" },
+          { "value": "WRONG_1", "label": "Recipe development for cooking" },
+          { "value": "WRONG_2", "label": "Vehicle maintenance schedules" },
+          { "value": "WRONG_3", "label": "Programming software bugs" }
+        ],
+        "required": true,
+        "helper_text": "(This ensures you read carefully. If you got it wrong, we may reject the submission.)"
+      }
+    ]
+  },
+  "data_format": {
+    "input_csv_columns": [
+      "object_id",
+      "claim_text",
+      "evidence_text",
+      "scenario",
+      "system_score",
+      "system_verdict"
+    ],
+    "input_csv_example": "object_id,claim_text,evidence_text,scenario,system_score,system_verdict\nscifact_001,\"BRCA1 mutations increase breast cancer risk.\",\"Individuals carrying BRCA1 pathogenic variants face cumulative breast cancer risk >70% by age 80.\",scifact,0.94,SUPPORTED\nscifact_002,\"The study enrolled 500 participants.\",\"A total of 450 healthy controls were recruited for comparison.\",scifact,0.62,UNSUPPORTED"
+  },
+  "quality_control": {
+    "approval_criteria": [
+      "Attention check answer is correct",
+      "Submission time 1–10 minutes (not <30 sec, not >15 min)",
+      "Comments are substantive if provided (not copy-paste)"
+    ],
+    "rejection_messages": {
+      "attention_check_failed": "Thank you for participating. Unfortunately, we couldn't approve this submission because the attention check was incorrect. This helps us ensure quality responses.",
+      "too_fast": "Your submission was completed too quickly (likely <30 sec per task). We need responses based on careful review.",
+      "low_quality_comments": "Your comments appeared to be copy-pasted or generic. We need thoughtful feedback from reviewers."
+    }
+  },
+  "payment_schedule": {
+    "base_reward": 3.0,
+    "bonus_criteria": [
+      {
+        "description": "High-quality responses (no rejections in first 10 tasks)",
+        "amount": 0.50,
+        "applies_to": "all_remaining_tasks"
+      }
+    ]
+  },
+  "notes": {
+    "implementation": "This template is designed for Prolific's JSON editor. Adapt to your platform (Google Forms, Qualtrics) by mapping fields to equivalent question types.",
+    "csv_upload": "Upload the input CSV (one row per proof object) via Prolific's data panel. The platform will iterate over rows, showing each as a separate task.",
+    "time_estimate": "2–3 minutes per claim; 100 claims = 3–5 hours depending on annotator familiarity with the domain.",
+    "expected_completion": "48 hours from launch (Prolific users often work in batches).",
+    "contact": "For technical issues or clarifications, contact the study creator via Prolific messaging."
+  }
+}
