@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proof-Carrying Answers: Annotation Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Calibri, Arial, sans-serif;
+            background: #F2EDE4;
+            color: #191E19;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: #191E19;
+            color: #F2EDE4;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-top: 4px solid #1B5E3B;
+        }
+
+        header h1 {
+            font-family: Georgia, serif;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1B5E3B;
+            width: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transition: width 0.3s ease;
+        }
+
+        /* Main layout */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Left pane: Proof object */
+        .pane {
+            background: white;
+            border: 1px solid #D0D0D0;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .pane h2 {
+            font-family: Georgia, serif;
+            color: #1B5E3B;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #1B5E3B;
+            padding-bottom: 10px;
+        }
+
+        .pane h3 {
+            font-size: 13px;
+            color: #787D78;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+        .claim-text {
+            font-size: 16px;
+            line-height: 1.6;
+            background: #F9F9F9;
+            padding: 12px;
+            border-left: 4px solid #C4A94F;
+            margin-bottom: 15px;
+            border-radius: 2px;
+        }
+
+        .evidence-text {
+            font-size: 15px;
+            line-height: 1.6;
+            background: #FFFCF7;
+            padding: 12px;
+            border-left: 4px solid #D4453A;
+            margin-bottom: 10px;
+            border-radius: 2px;
+        }
+
+        .metadata {
+            font-size: 12px;
+            color: #787D78;
+            background: #F2EDE4;
+            padding: 10px;
+            border-radius: 2px;
+            margin-top: 10px;
+        }
+
+        .metadata-row {
+            margin: 5px 0;
+        }
+
+        .metadata-label {
+            font-weight: bold;
+        }
+
+        /* Right pane: annotation form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #191E19;
+            margin-bottom: 10px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .radio-option:hover {
+            background: #F2EDE4;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-top: 3px;
+            cursor: pointer;
+            accent-color: #1B5E3B;
+        }
+
+        .radio-label {
+            flex: 1;
+        }
+
+        .radio-label strong {
+            display: block;
+            color: #1B5E3B;
+            margin-bottom: 3px;
+        }
+
+        .radio-label .sublabel {
+            font-size: 13px;
+            color: #787D78;
+            font-weight: normal;
+        }
+
+        .instructions {
+            background: #FFFCF7;
+            border: 1px solid #D4453A;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #D0D0D0;
+            border-radius: 4px;
+            font-family: Calibri, Arial, sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.submit {
+            background: #1B5E3B;
+            color: white;
+        }
+
+        button.submit:hover {
+            background: #134D2A;
+            box-shadow: 0 2px 8px rgba(27, 94, 59, 0.3);
+        }
+
+        button.submit:disabled {
+            background: #C0C0C0;
+            cursor: not-allowed;
+        }
+
+        button.previous {
+            background: #C4A94F;
+            color: #191E19;
+        }
+
+        button.previous:hover {
+            background: #B39940;
+        }
+
+        button.previous:disabled {
+            background: #E0E0E0;
+            color: #A0A0A0;
+        }
+
+        /* Attention check (hidden initially) */
+        .attention-check {
+            background: #D4453A;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .attention-check.visible {
+            display: block;
+        }
+
+        /* Status messages */
+        .message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.success {
+            background: #E8F5E9;
+            color: #1B5E3B;
+            border: 1px solid #81C784;
+            display: block;
+        }
+
+        .message.error {
+            background: #FFEBEE;
+            color: #D4453A;
+            border: 1px solid #EF5350;
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: #787D78;
+        }
+
+        .spinner {
+            border: 3px solid #E0E0E0;
+            border-top: 3px solid #1B5E3B;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Proof-Carrying Answers: Annotation Study</h1>
+        <p>Evaluate claim-evidence pairs for the PCA human evaluation</p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="loadingState" class="loading">
+            <div class="spinner"></div>
+            <p>Loading annotation interface...</p>
+        </div>
+
+        <div id="appState" style="display: none;">
+            <div class="main">
+                <!-- LEFT PANE: PROOF OBJECT -->
+                <div class="pane">
+                    <h2>Proof Object</h2>
+
+                    <h3>Claim</h3>
+                    <div class="claim-text" id="claimText"></div>
+
+                    <h3>Source Evidence</h3>
+                    <div class="evidence-text" id="evidenceText"></div>
+
+                    <div class="metadata">
+                        <div class="metadata-row">
+                            <span class="metadata-label">ID:</span>
+                            <span id="objectId"></span>
+                        </div>
+                        <div class="metadata-row">
+                            <span class="metadata-label">Scenario:</span>
+                            <span id="scenario"></span>
+                        </div>
+                        <div class="metadata-row">
+                            <span class="metadata-label">System Score:</span>
+                            <span id="systemScore"></span>
+                        </div>
+                        <div class="metadata-row">
+                            <span class="metadata-label">System Verdict:</span>
+                            <span id="systemVerdict"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANE: ANNOTATION FORM -->
+                <div class="pane">
+                    <h2>Your Annotation</h2>
+
+                    <div id="message" class="message"></div>
+
+                    <div class="instructions">
+                        <strong>Instructions:</strong> Judge whether the claim's <em>meaning</em> is adequately supported by the evidence. Choose one:
+                        <ul style="margin-left: 20px; margin-top: 8px;">
+                            <li><strong>YES:</strong> Claim is clearly supported; no reasonable doubt.</li>
+                            <li><strong>PARTIAL:</strong> Mostly supported; minor logical gap, paraphrase, or context needed.</li>
+                            <li><strong>NO:</strong> Contradicted, unsupported, or requires external knowledge.</li>
+                            <li><strong>UNCLEAR:</strong> Cannot determine from evidence provided.</li>
+                        </ul>
+                    </div>
+
+                    <form id="annotationForm">
+                        <div class="form-group">
+                            <label>Is this claim's meaning adequately supported by the evidence?</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="verdict" value="YES" required>
+                                    <div class="radio-label">
+                                        <strong>YES</strong>
+                                        <div class="sublabel">Claim is clearly supported by the evidence.</div>
+                                    </div>
+                                </label>
+
+                                <label class="radio-option">
+                                    <input type="radio" name="verdict" value="PARTIAL" required>
+                                    <div class="radio-label">
+                                        <strong>PARTIAL</strong>
+                                        <div class="sublabel">Mostly supported, but with minor gaps or paraphrasing.</div>
+                                    </div>
+                                </label>
+
+                                <label class="radio-option">
+                                    <input type="radio" name="verdict" value="NO" required>
+                                    <div class="radio-label">
+                                        <strong>NO</strong>
+                                        <div class="sublabel">Contradicted, unsupported, or requires external knowledge.</div>
+                                    </div>
+                                </label>
+
+                                <label class="radio-option">
+                                    <input type="radio" name="verdict" value="UNCLEAR" required>
+                                    <div class="radio-label">
+                                        <strong>UNCLEAR</strong>
+                                        <div class="sublabel">Cannot determine from the evidence provided.</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="comments">Optional: Any observations about the evidence or claim?</label>
+                            <textarea id="comments" name="comments" placeholder="E.g., heavy paraphrase, missing context, multiple interpretations..."></textarea>
+                        </div>
+
+                        <!-- Attention check (shown at the end) -->
+                        <div class="attention-check" id="attentionCheck">
+                            <p><strong>Attention Check:</strong> What domain did this task focus on?</p>
+                            <div class="radio-group" style="margin-top: 10px;">
+                                <label class="radio-option" style="background: rgba(255,255,255,0.1);">
+                                    <input type="radio" name="attention" value="CORRECT" required>
+                                    <div class="radio-label">
+                                        <strong>Insurance claim verification and evidence evaluation</strong>
+                                    </div>
+                                </label>
+                                <label class="radio-option" style="background: rgba(255,255,255,0.1);">
+                                    <input type="radio" name="attention" value="WRONG" required>
+                                    <div class="radio-label">
+                                        <strong>Recipe development and cooking techniques</strong>
+                                    </div>
+                                </label>
+                                <label class="radio-option" style="background: rgba(255,255,255,0.1);">
+                                    <input type="radio" name="attention" value="WRONG" required>
+                                    <div class="radio-label">
+                                        <strong>Vehicle maintenance and repair schedules</strong>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" class="previous" id="prevBtn" onclick="previousObject()" disabled>← Previous</button>
+                            <button type="submit" class="submit" id="submitBtn">Next →</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let proofObjects = [];
+        let responses = [];
+        let currentIndex = 0;
+
+        // Load proof objects from JSON
+        async function loadProofObjects() {
+            try {
+                // Try to load from file input first
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput && fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const text = await file.text();
+                    proofObjects = JSON.parse(text);
+                } else {
+                    // Fallback: load from all_proof_objects_200.json in same directory
+                    const response = await fetch('all_proof_objects_200.json');
+                    if (!response.ok) throw new Error('Failed to load proof objects');
+                    proofObjects = await response.json();
+                }
+
+                if (!Array.isArray(proofObjects) || proofObjects.length === 0) {
+                    throw new Error('No proof objects found');
+                }
+
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('appState').style.display = 'block';
+
+                displayObject(0);
+            } catch (error) {
+                document.getElementById('loadingState').innerHTML = `
+                    <p style="color: #D4453A; font-weight: bold;">Error loading annotation interface:</p>
+                    <p>${error.message}</p>
+                    <p style="margin-top: 20px; font-size: 13px; color: #787D78;">
+                        Make sure <code>all_proof_objects_200.json</code> is in the same directory as this HTML file.
+                    </p>
+                `;
+            }
+        }
+
+        // Display current object
+        function displayObject(index) {
+            if (index < 0 || index >= proofObjects.length) return;
+
+            currentIndex = index;
+            const obj = proofObjects[index];
+
+            // Populate left pane
+            document.getElementById('claimText').textContent = obj.claim_text;
+            document.getElementById('evidenceText').textContent = obj.evidence_text;
+            document.getElementById('objectId').textContent = obj.object_id;
+            document.getElementById('scenario').textContent = obj.scenario.toUpperCase();
+            document.getElementById('systemScore').textContent = (obj.system_score || 0).toFixed(3);
+            document.getElementById('systemVerdict').textContent = obj.system_verdict || 'N/A';
+
+            // Reset form
+            document.getElementById('annotationForm').reset();
+            document.getElementById('message').className = 'message';
+            document.getElementById('message').textContent = '';
+
+            // Update progress bar
+            const progress = ((index + 1) / proofObjects.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressFill').textContent = Math.round(progress) + '%';
+
+            // Show attention check on last object
+            const attentionCheck = document.getElementById('attentionCheck');
+            if (index === proofObjects.length - 1) {
+                attentionCheck.classList.add('visible');
+            } else {
+                attentionCheck.classList.remove('visible');
+            }
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('submitBtn').textContent = index === proofObjects.length - 1 ? 'Submit Study' : 'Next →';
+
+            window.scrollTo(0, 0);
+        }
+
+        // Previous object
+        function previousObject() {
+            if (currentIndex > 0) {
+                displayObject(currentIndex - 1);
+            }
+        }
+
+        // Form submission
+        document.getElementById('annotationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const verdict = document.querySelector('input[name="verdict"]:checked');
+            if (!verdict) {
+                showMessage('Please select a verdict.', 'error');
+                return;
+            }
+
+            const isLastObject = currentIndex === proofObjects.length - 1;
+            if (isLastObject) {
+                const attention = document.querySelector('input[name="attention"]:checked');
+                if (!attention) {
+                    showMessage('Please answer the attention check.', 'error');
+                    return;
+                }
+
+                if (attention.value !== 'CORRECT') {
+                    showMessage('Attention check failed. Please review the task instructions.', 'error');
+                    return;
+                }
+            }
+
+            // Save response
+            responses.push({
+                object_id: proofObjects[currentIndex].object_id,
+                verdict: verdict.value,
+                comments: document.getElementById('comments').value,
+                timestamp: new Date().toISOString()
+            });
+
+            if (isLastObject) {
+                completeStudy();
+            } else {
+                displayObject(currentIndex + 1);
+            }
+        });
+
+        // Show message
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+        }
+
+        // Complete study
+        function completeStudy() {
+            const csv = convertToCSV(responses);
+            const jsonStr = JSON.stringify(responses, null, 2);
+
+            // Download CSV
+            downloadFile(csv, 'annotations.csv', 'text/csv');
+
+            // Download JSON
+            downloadFile(jsonStr, 'annotations.json', 'application/json');
+
+            showMessage(
+                `Study complete! Your annotations have been saved (${responses.length} objects). ` +
+                `Two files downloaded: annotations.csv and annotations.json. ` +
+                `Please return these files to the researcher.`,
+                'success'
+            );
+
+            document.getElementById('annotationForm').style.display = 'none';
+        }
+
+        // Convert responses to CSV
+        function convertToCSV(responses) {
+            const headers = ['object_id', 'verdict', 'comments', 'timestamp'];
+            const rows = responses.map(r => [
+                r.object_id,
+                r.verdict,
+                `"${(r.comments || '').replace(/"/g, '""')}"`,
+                r.timestamp
+            ]);
+
+            return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        }
+
+        // Download file
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', loadProofObjects);
+    </script>
+</body>
+</html>
